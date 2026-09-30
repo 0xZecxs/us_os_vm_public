@@ -44,7 +44,7 @@ public class SystemOS implements Runnable{
     public static final int SEED_SEGMENTS = 7401;
     public static final int SEED_PROCESS_SIZE = 9630;
     
-    public static final int MEMORY_SIZE = 1_048_576; //1MB
+    public static final int MEMORY_SIZE = 1024; //1MB
     public static final int SWAP_MEMORY_SIZE = 1_073_741_824; //1 GB
     
     protected ArrayList<Process> processes;
@@ -62,7 +62,7 @@ public class SystemOS implements Runnable{
         processes = new ArrayList();
         //initSimulationQueue();
         //initSimulationQueueSimple();
-        initSimulationQueueSimpler();
+        initSimulationQueueScenario();
         
 
         showProcesses();
@@ -172,6 +172,64 @@ public class SystemOS implements Runnable{
         
         clock = 0;
     }
+
+    public void initSimulationQueueScenario() {
+    processes.clear();
+    clock = 0;
+
+    // Estos seis procesos llenan los 1024 bytes.
+    int[] sizes = {150, 50, 250, 50, 400, 124};
+
+    for (int id = 0; id < sizes.length; id++) {
+        Process p = new Process(id, 0);
+        p.setSize(sizes[id]);
+
+        p.addCPUInstructions(1);
+
+        p.addInstruction(new MemoryInstruction(
+                MemoryOperationType.STORE,
+                10,
+                (byte) (id + 1),
+                3
+        ));
+
+        // Mantienen bloques ocupados entre los futuros huecos.
+        if (id % 2 == 1) {
+            p.addInstruction(new IOInstruction(200));
+        }
+
+        p.addCPUInstructions(1);
+        p.addInstruction(new EndInstruction());
+
+        processes.add(p);
+    }
+
+    // Llegan cuando P0, P2 y P4 ya liberaron sus bloques.
+    int[] arrivals = {50, 51};
+    int[] requests = {100, 180};
+
+    for (int i = 0; i < requests.length; i++) {
+        Process p = new Process(6 + i, arrivals[i]);
+        p.setSize(requests[i]);
+
+        p.addCPUInstructions(1);
+
+        p.addInstruction(new MemoryInstruction(
+                MemoryOperationType.STORE,
+                10,
+                (byte) (99 + i),
+                3
+        ));
+
+        // P6 conserva su bloque mientras se asigna P7.
+        p.addInstruction(new IOInstruction(100));
+
+        p.addCPUInstructions(1);
+        p.addInstruction(new EndInstruction());
+
+        processes.add(p);
+    }
+}
     
     public void initSimulationQueueSimpler3(){
         

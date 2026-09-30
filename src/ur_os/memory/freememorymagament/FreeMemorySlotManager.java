@@ -113,5 +113,28 @@ public abstract class FreeMemorySlotManager extends FreeMemoryManager{
     public int getSize() {
         return this.list.size();
     }
+
+    public double getExternalFragmentationPercentage() {
+
+    long totalFree = 0;
+    int largestSlot = 0;
+
+    // Sumar la memoria libre y encontrar el mayor hueco.
+    for (MemorySlot slot : list) {
+        totalFree += slot.getSize();
+
+        if (slot.getSize() > largestSlot) {
+            largestSlot = slot.getSize();
+        }
+    }
+
+    // Sin memoria libre, el porcentaje no está definido.
+    if (totalFree == 0) {
+        return Double.NaN;
+    }
+
+    // Porcentaje de memoria libre fuera del mayor hueco.
+    return 100.0 * (totalFree - largestSlot) / totalFree;
+}
     
 }

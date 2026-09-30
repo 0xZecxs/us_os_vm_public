@@ -387,15 +387,39 @@ public class SystemOS implements Runnable{
         showFreeMemory();
     }
     
-    public void showFreeMemory(){
-        if(OS.SMM == MemoryManagerType.PAGING){
-            System.out.println("Free frame number: "+os.fmm.getSize());
-        }else{
-            System.out.println("Free Memory Slots ("+os.fmm.getSize()+"): ");
-            FreeMemorySlotManager msm = (FreeMemorySlotManager)os.fmm;
-            System.out.println(msm);
+    public void showFreeMemory() {
+
+    if (OS.SMM == MemoryManagerType.PAGING) {
+        System.out.println(
+                "Free frame number: " + os.fmm.getSize()
+        );
+    } else {
+        FreeMemorySlotManager msm =
+                (FreeMemorySlotManager) os.fmm;
+
+        // Mostrar los huecos libres actuales.
+        System.out.println(
+                "Free Memory Slots (" + msm.getSize() + "):"
+        );
+        System.out.println(msm);
+
+        // Mostrar el porcentaje calculado por el gestor.
+        double fragmentation =
+                msm.getExternalFragmentationPercentage();
+
+        if (Double.isNaN(fragmentation)) {
+            System.out.println(
+                    "Fragmentacion externa: N/A (sin memoria libre)"
+            );
+        } else {
+            System.out.printf(
+                    java.util.Locale.ROOT,
+                    "Fragmentacion externa: %.4f%%%n",
+                    fragmentation
+            );
         }
     }
+}
     
     public void showProcesses(){
         System.out.println("Process list:");

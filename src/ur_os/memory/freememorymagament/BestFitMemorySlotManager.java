@@ -16,10 +16,38 @@ public class BestFitMemorySlotManager extends FreeMemorySlotManager{
     
     @Override
     public MemorySlot getSlot(int size) {
-        MemorySlot m = null;
-        //ToDo
-        
-        return m;
+        if (size <= 0) {
+        return null;
     }
-    
+
+    MemorySlot selected = null;
+
+    // Buscar el hueco más pequeño donde quepa la solicitud.
+    for (MemorySlot slot : list) {
+        if (slot.canContain(size)) {
+            if (selected == null
+                    || slot.getSize() < selected.getSize()) {
+                selected = slot;
+            }
+        }
+    }
+
+    // Ningún hueco tiene suficiente espacio.
+    if (selected == null) {
+        return null;
+    }
+
+    // Ajuste exacto: el hueco deja de estar libre.
+    if (selected.getSize() == size) {
+        list.remove(selected);
+        return selected;
+    }
+
+    // Ajuste parcial: entregar lo solicitado y conservar el sobrante.
+    return selected.assignMemory(size);
 }
+
+}
+    
+
+

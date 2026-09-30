@@ -36,6 +36,7 @@ public class PMM_Contiguous extends ProcessMemoryManager{
         }else{
             memorySlot = null;
             valid = false;
+            
         }
         
         vMemorySlot = new MemorySlot(vm); //Swap memory allocation
